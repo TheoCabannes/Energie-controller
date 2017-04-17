@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+int lampe = 1, frigo, tele;
+int puissance = 700, puissance_lampe = 200, puissance_frigo = 400, puissance_tele = 200, puissance_max = 1000;
+//controle de la lampe
+chan inter_l, control_l_on, control_l_off_aux, do_control_l, control_l_off;
+//controle du frigo
+chan inter_f, control_f_on, control_f_off_aux, do_control_f, control_f_off;
+//controle de la tele
+chan inter_t, control_t_on, control_t_off_aux, do_control_t, control_t_off;
+chan control_tot;
+
+//controle du chauffage
+int chauffage = 1;
+int puissance_chauffage = 500;
+chan inter_c, control_c_on, control_c_off_aux, do_control_c, control_c_off;</declaration>
+	<template>
+		<name>Interrupteur</name>
+		<location id="id0" x="-212" y="17">
+			<name x="-195" y="9">Switch</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<nail x="-288" y="-33"/>
+			<nail x="-271" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-238" y="76">inter_l!</label>
+			<nail x="-245" y="77"/>
+			<nail x="-186" y="77"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-340" y="17">inter_t!</label>
+			<nail x="-280" y="51"/>
+			<nail x="-280" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-237" y="-76">inter_f!</label>
+			<nail x="-245" y="-51"/>
+			<nail x="-178" y="-50"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<nail x="-144" y="-8"/>
+			<nail x="-144" y="51"/>
+		</transition>
+	</template>
+	<template>
+		<name>Frigo</name>
+		<location id="id1" x="-187" y="-59">
+			<committed/>
+		</location>
+		<location id="id2" x="0" y="59">
+			<name x="0" y="25">Controle</name>
+			<committed/>
+		</location>
+		<location id="id3" x="144" y="0">
+			<name x="170" y="-8">Frigo_allume</name>
+			<label kind="invariant" x="178" y="8">frigo==1</label>
+		</location>
+		<location id="id4" x="-221" y="0">
+			<name x="-340" y="-8">Frigo_eteint</name>
+			<label kind="invariant" x="-331" y="8">frigo==0</label>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="-272" y="-51">frigo:=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-161" y="-17">control_f_off?</label>
+			<label kind="assignment" x="-136" y="-34">frigo:=0</label>
+			<nail x="-51" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-255" y="42">inter_f?</label>
+			<label kind="assignment" x="-255" y="59">frigo:=1</label>
+			<nail x="-178" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-110" y="-128">control_f_off ?</label>
+			<label kind="assignment" x="-195" y="-145">puissance := puissance - puissance_frigo</label>
+			<nail x="93" y="-102"/>
+			<nail x="-161" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-85" y="-76">inter_f ?</label>
+			<label kind="assignment" x="-195" y="-162">puissance := puissance - puissance_frigo</label>
+			<nail x="102" y="-59"/>
+			<nail x="-170" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-170" y="136">puissance + puissance_frigo &gt;= puissance_max</label>
+			<label kind="synchronisation" x="-68" y="153">control_tot!</label>
+			<nail x="-58" y="128"/>
+			<nail x="51" y="128"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="68" y="59">puissance + puissance_frigo &lt; puissance_max</label>
+			<label kind="assignment" x="85" y="76">puissance := puissance + puissance_frigo</label>
+			<nail x="119" y="59"/>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Lampe</name>
+		<declaration>// Place local declarations here.</declaration>
+		<location id="id5" x="-187" y="-59">
+			<committed/>
+		</location>
+		<location id="id6" x="-25" y="68">
+			<name x="-25" y="34">Controle</name>
+			<committed/>
+		</location>
+		<location id="id7" x="85" y="0">
+			<name x="119" y="-8">Lampe_allumee</name>
+			<label kind="invariant" x="136" y="8">lampe==1</label>
+		</location>
+		<location id="id8" x="-221" y="0">
+			<name x="-340" y="-8">Lampe_eteinte</name>
+			<label kind="invariant" x="-323" y="8">lampe==0</label>
+		</location>
+		<init ref="id7"/>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id8"/>
+			<label kind="assignment" x="-289" y="-42">lampe:=0</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="-170" y="-17">control_l_off?</label>
+			<label kind="assignment" x="-153" y="0">lampe:=0</label>
+			<nail x="-68" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="8" y="68">puissance + puissance_lampe &lt; puissance_max</label>
+			<label kind="assignment" x="8" y="85">puissance := puissance + puissance_lampe</label>
+			<nail x="42" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-255" y="51">inter_l?</label>
+			<label kind="assignment" x="-263" y="68">lampe:=1</label>
+			<nail x="-178" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-110" y="-136">control_l_off ?</label>
+			<label kind="assignment" x="-195" y="-153">puissance := puissance - puissance_lampe</label>
+			<nail x="25" y="-110"/>
+			<nail x="-153" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-85" y="-76">inter_l ?</label>
+			<label kind="assignment" x="-195" y="-170">puissance := puissance - puissance_lampe</label>
+			<nail x="34" y="-59"/>
+			<nail x="-119" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-196" y="178">puissance + puissance_lampe &gt;= puissance_max</label>
+			<label kind="synchronisation" x="-94" y="195">control_tot!</label>
+			<nail x="-84" y="170"/>
+			<nail x="25" y="170"/>
+		</transition>
+	</template>
+	<template>
+		<name>Tele</name>
+		<location id="id9" x="85" y="0">
+			<name x="119" y="-8">Tele_allumee</name>
+		</location>
+		<location id="id10" x="-187" y="-59">
+			<committed/>
+		</location>
+		<location id="id11" x="-221" y="0">
+			<name x="-340" y="-8">Tele_eteinte</name>
+		</location>
+		<location id="id12" x="-42" y="68">
+			<committed/>
+		</location>
+		<init ref="id11"/>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="assignment" x="-289" y="-42">tele:=0</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-246" y="51">inter_t?</label>
+			<label kind="assignment" x="-246" y="68">tele:=1</label>
+			<nail x="-178" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-110" y="-128">control_t_off ?</label>
+			<label kind="assignment" x="-195" y="-145">puissance := puissance - puissance_tele</label>
+			<nail x="25" y="-102"/>
+			<nail x="-161" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-85" y="-76">inter_t ?</label>
+			<label kind="assignment" x="-195" y="-161">puissance := puissance - puissance_tele</label>
+			<nail x="34" y="-59"/>
+			<nail x="-119" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-178" y="-17">control_t_off?</label>
+			<label kind="assignment" x="-161" y="0">tele:=0</label>
+			<nail x="-85" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-212" y="161">puissance + puissance_tele &gt;= puissance_max</label>
+			<label kind="synchronisation" x="-110" y="178">control_tot!</label>
+			<nail x="-100" y="153"/>
+			<nail x="9" y="153"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id9"/>
+			<label kind="guard" x="0" y="68">puissance + puissance_tele &lt; puissance_max</label>
+			<label kind="assignment" x="17" y="85">puissance := puissance + puissance_tele</label>
+			<nail x="59" y="68"/>
+		</transition>
+	</template>
+	<template>
+		<name>Chauffage</name>
+		<location id="id13" x="85" y="0">
+			<name x="102" y="-25">Chauffage_allumee</name>
+			<label kind="invariant" x="110" y="-8">chauffage==1</label>
+		</location>
+		<location id="id14" x="-187" y="-59">
+			<committed/>
+		</location>
+		<location id="id15" x="-221" y="0">
+			<name x="-374" y="-8">Chauffage_eteinte</name>
+			<label kind="invariant" x="-365" y="8">chauffage==0</label>
+		</location>
+		<location id="id16" x="-42" y="68">
+			<name x="-42" y="34">Controle</name>
+		</location>
+		<init ref="id13"/>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="assignment" x="-314" y="-42">chauffage:=0</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-178" y="-17">control_c_off?</label>
+			<label kind="assignment" x="-170" y="0">chauffage:=0</label>
+			<nail x="-76" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id13"/>
+			<label kind="guard" x="0" y="68">puissance + puissance_chauffage &lt; puissance_max</label>
+			<label kind="assignment" x="0" y="85">puissance := puissance + puissance_chauffage</label>
+			<nail x="42" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="synchronisation" x="-255" y="51">inter_c?</label>
+			<label kind="assignment" x="-272" y="68">chauffage:=1</label>
+			<nail x="-178" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-110" y="-128">control_c_off ?</label>
+			<label kind="assignment" x="-195" y="-145">puissance := puissance - puissance_chauffage</label>
+			<nail x="25" y="-102"/>
+			<nail x="-161" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-85" y="-76">inter_c ?</label>
+			<label kind="assignment" x="-195" y="-161">puissance := puissance - puissance_chauffage</label>
+			<nail x="34" y="-59"/>
+			<nail x="-119" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-212" y="161">puissance + puissance_chauffage &gt;= puissance_max</label>
+			<label kind="synchronisation" x="-110" y="178">control_tot!</label>
+			<nail x="-100" y="153"/>
+			<nail x="9" y="153"/>
+		</transition>
+	</template>
+	<template>
+		<name>Controle_total</name>
+		<location id="id17" x="289" y="0">
+			<name x="297" y="-25">Controle_a_faire</name>
+			<committed/>
+		</location>
+		<location id="id18" x="-229" y="0">
+			<name x="-356" y="-25">Pas_de_controle</name>
+		</location>
+		<init ref="id18"/>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-161" y="-229">tele==0 &amp;&amp; lampe==0 &amp;&amp; frigo == 0 &amp;&amp; chauffage == 1</label>
+			<label kind="synchronisation" x="-17" y="-212">control_c_off!</label>
+			<nail x="272" y="-195"/>
+			<nail x="-195" y="-195"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-85" y="-169">tele==0 &amp;&amp; lampe == 0 &amp;&amp; frigo == 1</label>
+			<label kind="synchronisation" x="-8" y="-152">control_f_off!</label>
+			<nail x="272" y="-127"/>
+			<nail x="-203" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="-25" y="-119">tele==0 &amp;&amp; lampe==1</label>
+			<label kind="synchronisation" x="0" y="-102">control_l_off!</label>
+			<nail x="272" y="-85"/>
+			<nail x="-203" y="-85"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id18"/>
+			<label kind="guard" x="9" y="-51">tele == 1</label>
+			<label kind="synchronisation" x="-8" y="-34">control_t_off!</label>
+			<nail x="263" y="-51"/>
+			<nail x="-204" y="-51"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="0" y="59">control_tot?</label>
+			<nail x="-195" y="51"/>
+			<nail x="263" y="51"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+L = Lampe();
+F = Frigo();
+T = Tele();
+T2 = Tele();
+C = Chauffage();
+I = Interrupteur();
+CTot = Controle_total();
+// List one or more processes to be composed into a system.
+system L, F, C, T, T2, I, CTot;
+// system T, I, CTot;</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; tele==1
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A&lt;&gt; lampe==1
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] chauffage==1
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; lampe==0
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] puissance&lt;puissance_max
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] not deadlock
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>
